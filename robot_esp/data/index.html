@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--*******************************************************
+    * robot                                               *
+    * wifi controlled wheel robot                         *
+    * esp8266 wifi with webserver, mdns, websocket server *
+    * arduino controlled wheel platform                   *
+    * © Roganov Sergey, 2017                              *
+    *******************************************************-->
+<meta charset="utf8">
+<meta name="author" content="Roganov Sergey">
+<meta name="title" content="robot.local">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+<title>robot</title>
+<style>
+	html, body {
+		padding: 0;
+		margin: 0;
+	}
+	
+	main {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: 100vw;
+		height: 100vh;
+		z-index: 0;
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		overflow: hidden;
+	}
+	
+	header {
+		padding: 1em 2em;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		text-align: center;
+		z-index: 1;
+		pointer-events: none;
+	}
+	
+	#status {
+		font-size: xx-large;
+		margin: 0;
+		padding: 1em;
+		width: 1em;
+		height: 1em;
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 0;
+		pointer-events: none;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+	
+	#debug {
+		padding: 1em 2em;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		z-index: 1;
+		pointer-events: none;
+		display: none;
+	}
+	
+	footer {
+		padding: 1em 2em;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		z-index: 1;
+		pointer-events: none;
+	}
+</style>
+<script src="virtualjoystick.js"></script>
+<script>
+	var dom = {
+		main: null,
+		debug: null,
+		status: null,
+	};
+	var connected = false;
+	var joystick;
+	var lwsc = "s";
+	
+	window.addEventListener("load", function(){
+		dom.main = document.querySelector("main");
+		dom.debug = document.querySelector("#debug");
+		dom.status = document.querySelector("#status");
+		
+		webSocket = new WebSocket("ws://robot.local:81");
+		webSocket.binaryType = "arraybuffer";
+		
+		webSocket.addEventListener("open", function(event){
+			dom.status.style.background = "yellow";
+			console.log("ws open");
+			webSocket.send("Ready");
+		});
+		
+		webSocket.addEventListener("message", function(event){
+			console.log("ws message: " + typeof(event.data) + " " + event.data);
+			if(event.data==="Go!")dom.status.style.background = "lime";
+			connected = true;
+		});
+		
+		webSocket.addEventListener("close", function(event){
+			dom.status.style.background = "red";
+			console.log('wsclose');
+			connected = false;
+		});
+		
+		joystick = new VirtualJoystick({
+			container: dom.main,
+			mouseSupport: true,
+			strokeStyle: "black",
+			useCssTransform: true,
+		});
+		
+		joystick.mydown = function(event){};
+		joystick.myup = function(event){};
+		joystick.mymove = function(event){
+			var wsc = "";
+			var stc = "";
+			if(Math.pow(joystick.deltaX(), 2)+Math.pow(joystick.deltaY(), 2)>Math.pow(30, 2)){
+				if(joystick.up()){
+					wsc = "w";
+					stc = "↑";
+				}
+				if(joystick.down()){
+					wsc = "x";
+					stc = "↓";
+				}
+				if(joystick.left()){
+					if(joystick.up()){
+						wsc = "q";
+						stc = "↖";
+					}else if(joystick.down()){
+						wsc = "z";
+						stc = "↙";
+					}else{
+						wsc = "l";
+						stc = "←";
+					}
+				}
+				if(joystick.right()){
+					if(joystick.up()){
+						wsc = "e";
+						stc = "↗";
+					}else if(joystick.down()){
+						wsc = "c";
+						stc = "↘";
+					}else{
+						wsc = "r";
+						stc = "→";
+					}
+				}
+			}else{
+				if(stc!=="+"){
+					wsc = "s";
+					stc = "+";
+				}
+			}
+			if(connected && wsc!==lwsc){
+				webSocket.send(wsc);
+				lwsc = wsc;
+				console.log(wsc);
+			}
+			dom.status.innerHTML = stc;
+			if(dom.debug && window.getComputedStyle(dom.debug).display!=='none'){
+				dom.debug.innerHTML	= '<b>Result:</b> '
+					+ ' dx:'+joystick.deltaX()
+					+ ' dy:'+joystick.deltaY()
+					+ (joystick.right() ? ' right' : '')
+					+ (joystick.up()    ? ' up'    : '')
+					+ (joystick.left()  ? ' left'  : '')
+					+ (joystick.down()  ? ' down'  : '');
+			}
+		};
+		
+		dom.main.addEventListener("mousedown", joystick.mydown);
+		dom.main.addEventListener("touchstart", joystick.mydown);
+		dom.main.addEventListener("mouseup", joystick.myup);
+		dom.main.addEventListener("touchend", joystick.myup);
+		dom.main.addEventListener("mousemove", joystick.mymove);
+		dom.main.addEventListener("touchmove", joystick.mymove);
+	});
+	
+</script>
+<header>
+	<h1>robot</h1>
+</header>
+<div id="status" style="background: red;">+</div>
+<main></main>
+<div id="debug"></div>
+<footer>
+	<p>&copy; Roganov Sergey, 2017</p>
+</footer>
