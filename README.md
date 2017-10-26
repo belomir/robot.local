@@ -13,8 +13,8 @@
 
 * robot.ino
 * data/
-** index.html
-** ...
+	* index.html
+	* ...
 
 ### быстрый старт ###
 
