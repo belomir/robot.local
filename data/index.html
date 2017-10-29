@@ -33,7 +33,7 @@
 	}
 	
 	header {
-		padding: 1em 2em;
+		padding: 0;
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -41,6 +41,14 @@
 		text-align: center;
 		z-index: 1;
 		pointer-events: none;
+		display: flex;
+		align-items: center;
+		justify-content: space-evently;
+	}
+	
+	header > h1 {
+		transition: all 1s;
+		flex: 1;
 	}
 	
 	#status {
@@ -49,7 +57,7 @@
 		padding: 1em;
 		width: 1em;
 		height: 1em;
-		position: absolute;
+		float: left;
 		top: 0;
 		right: 0;
 		z-index: 0;
@@ -70,13 +78,15 @@
 	}
 	
 	footer {
-		padding: 1em 2em;
+		padding: 0 1em;
+		font-size: small;
 		position: absolute;
 		bottom: 0;
 		left: 0;
 		right: 0;
 		z-index: 1;
 		pointer-events: none;
+		transition: all 1s;
 	}
 </style>
 <script src="virtualjoystick.js"></script>
@@ -85,6 +95,8 @@
 		main: null,
 		debug: null,
 		status: null,
+		header: null,
+		footer: null,
 	};
 	var connected = false;
 	var joystick;
@@ -94,6 +106,8 @@
 		dom.main = document.querySelector("main");
 		dom.debug = document.querySelector("#debug");
 		dom.status = document.querySelector("#status");
+		dom.header = document.querySelector("header>h1");
+		dom.footer = document.querySelector("footer");
 		
 		webSocket = new WebSocket("ws://robot.local:81");
 		webSocket.binaryType = "arraybuffer";
@@ -108,12 +122,16 @@
 			console.log("ws message: " + typeof(event.data) + " " + event.data);
 			if(event.data==="Go!")dom.status.style.background = "lime";
 			connected = true;
+			dom.header.style.opacity = .3;
+			dom.footer.style.opacity = .3;
 		});
 		
 		webSocket.addEventListener("close", function(event){
 			dom.status.style.background = "red";
 			console.log('wsclose');
 			connected = false;
+			dom.header.style.opacity = 1;
+			dom.footer.style.opacity = 1;
 		});
 		
 		joystick = new VirtualJoystick({
@@ -124,7 +142,12 @@
 		});
 		
 		joystick.mydown = function(event){};
-		joystick.myup = function(event){};
+		joystick.myup = function(event){
+			lwsc = "s";
+			if(connected)webSocket.send(lwsc);
+			dom.status.innerHTML = "+";
+			console.log(lwsc);
+		};
 		joystick.mymove = function(event){
 			var wsc = "";
 			var stc = "";
@@ -145,7 +168,7 @@
 						wsc = "z";
 						stc = "↙";
 					}else{
-						wsc = "l";
+						wsc = "a";
 						stc = "←";
 					}
 				}
@@ -157,7 +180,7 @@
 						wsc = "c";
 						stc = "↘";
 					}else{
-						wsc = "r";
+						wsc = "d";
 						stc = "→";
 					}
 				}
@@ -170,8 +193,8 @@
 			if(connected && wsc!==lwsc){
 				webSocket.send(wsc);
 				lwsc = wsc;
-				console.log(wsc);
 			}
+			console.log(wsc);
 			dom.status.innerHTML = stc;
 			if(dom.debug && window.getComputedStyle(dom.debug).display!=='none'){
 				dom.debug.innerHTML	= '<b>Result:</b> '
@@ -194,9 +217,9 @@
 	
 </script>
 <header>
-	<h1>robot</h1>
+	<h1>robot.local</h1>
+	<div id="status" style="background: red;">+</div>
 </header>
-<div id="status" style="background: red;">+</div>
 <main></main>
 <div id="debug"></div>
 <footer>

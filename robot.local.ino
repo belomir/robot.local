@@ -9,8 +9,12 @@
 #define LED_RED   15
 #define LED_GREEN 13
 #define LED_BLUE  12
-#define SRX        4
-#define STX        5
+#define M1_D       2
+#define M1_S       0
+#define M2_S       4
+#define M2_D       5
+#define MID      255
+#define FULL    1023
 #define DNS_PORT  53
 
 #include <ESP8266WiFi.h>
@@ -20,13 +24,11 @@
 #include <DNSServer.h>
 #include <Hash.h>
 #include <FS.h>
-#include <SoftwareSerial.h>
 
 DNSServer dnsServer;
 ESP8266WebServer webServer(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 bool webSocketConnected = false;
-SoftwareSerial Serial2(SRX, STX);
 
 void setup() {
 	pinMode(LED, OUTPUT);
@@ -34,9 +36,19 @@ void setup() {
 	pinMode(LED_GREEN, OUTPUT);
 	pinMode(LED_BLUE, OUTPUT);
 	
+	pinMode(M1_D, OUTPUT);
+	pinMode(M1_S, OUTPUT);
+	pinMode(M2_S, OUTPUT);
+	pinMode(M2_D, OUTPUT);
+	
 	digitalWrite(LED_RED, HIGH);
 	digitalWrite(LED_GREEN, LOW);
 	digitalWrite(LED_BLUE, LOW);
+	
+	digitalWrite(M1_D, LOW);
+	digitalWrite(M1_S, LOW);
+	digitalWrite(M2_S, LOW);
+	digitalWrite(M2_D, LOW);
 	
 	Serial.begin(115200);
 	Serial.println("\nrobot is starting...configuring...");
@@ -88,13 +100,12 @@ void setup() {
 	Serial.print("...web server: ");
 	webServer.onNotFound([](){
 		if(!handleFileRead(webServer.uri()))
-			webServer.send(404, "text/plain", "404: Not Found");
+			webServer.sendHeader("Location", String("/"), true);
+			webServer.send(302, "text/plain", "");
+			//webServer.send(404, "text/plain", "404: Not Found");
 	});
 	webServer.begin();
 	Serial.println("done");
-	
-	Serial2.begin(115200);
-	Serial.println("Serial2 started");
 	
 	Serial.print("awaiting connection...");
 }
@@ -145,14 +156,29 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 				analogWrite(LED_GREEN,  ((rgb >> 8) & 0xFF));
 				analogWrite(LED_BLUE,   ((rgb >> 0) & 0xFF));
 			}
+			
+			if(webSocketConnected){
+				Serial.printf("len: %d - %s\n", length, payload);
+				if(length==1){
+					char ch = payload[0];
+					switch(ch){
+						case 'q': {s(); q();} break;
+						case 'w': {s(); w();} break;
+						case 'e': {s(); e();} break;
+						case 'a': {s(); a();} break;
+						case 's': {s(); s();} break;
+						case 'd': {s(); d();} break;
+						case 'z': {s(); z();} break;
+						case 'x': {s(); x();} break;
+						case 'c': {s(); c();} break;
+					}
+				}
+			}
+			
 			if(payload[0]=='R'&&payload[1]=='e'&&payload[2]=='a'&&payload[3]=='d'&&payload[4]=='y'){
 				webSocket.sendTXT(num, "Go!");
 				webSocketConnected = true;
 				
-			}
-			if(webSocketConnected){
-				Serial.printf("len: %d - %s\n", length, payload);
-				Serial2.printf("%s", payload);
 			}
 		}
 			break;
@@ -202,4 +228,84 @@ void listRoot(){
 		Serial.print("\t");
 		Serial.println(dir.fileName());
 	}
+}
+
+void q()
+{
+	digitalWrite(M1_D, LOW);
+	digitalWrite(M2_D, LOW);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, MID);
+	Serial.println("q");
+}
+
+void w(){
+	digitalWrite(M1_D, LOW);
+	digitalWrite(M2_D, LOW);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, FULL);
+	Serial.println("w");
+}
+
+void e()
+{
+	digitalWrite(M1_D, LOW);
+	digitalWrite(M2_D, LOW);
+	analogWrite(M1_S, MID);
+	analogWrite(M2_S, FULL);
+	Serial.println("e");
+}
+
+void a()
+{
+	digitalWrite(M1_D, LOW);
+	digitalWrite(M2_D, HIGH);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, FULL);
+	Serial.println("a");
+}
+
+void s()
+{
+	analogWrite(M1_S, 0);
+	analogWrite(M2_S, 0);
+	digitalWrite(M1_S, LOW);
+	digitalWrite(M2_S, LOW);
+	Serial.println("s");
+}
+
+void d()
+{
+	digitalWrite(M1_D, HIGH);
+	digitalWrite(M2_D, LOW);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, FULL);
+	Serial.println("d");
+}
+
+void z()
+{
+	digitalWrite(M1_D, HIGH);
+	digitalWrite(M2_D, HIGH);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, MID);
+	Serial.println("z");
+}
+
+void x()
+{
+	digitalWrite(M1_D, HIGH);
+	digitalWrite(M2_D, HIGH);
+	analogWrite(M1_S, FULL);
+	analogWrite(M2_S, FULL);
+	Serial.println("x");
+}
+
+void c()
+{
+	digitalWrite(M1_D, HIGH);
+	digitalWrite(M2_D, HIGH);
+	analogWrite(M1_S, MID);
+	analogWrite(M2_S, FULL);
+	Serial.println("c");
 }
