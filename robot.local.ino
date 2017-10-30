@@ -2,7 +2,6 @@
  * robot                                               *
  * wifi controlled wheel robot                         *
  * esp8266 wifi with webserver, mdns, websocket server *
- * arduino controlled wheel platform                   *
  * © Roganov Sergey, 2017                              *
  *******************************************************/
 #define LED       13

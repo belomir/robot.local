@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- © Sergey Roganov, 2017-->
+<!-- © Сергей Роганов, 2017-->
+<!-- GNU/GPL v.3+ -->
+<html lang="ru">
+<head>
+	<title>robot.local project</title>
+	<meta charset="utf-8">
+	<meta name="author" content="Sergey Roganov">
+	<meta name="author" lang="ru" content="Сергей Роганов">
+	<meta name="description" content="esp8266 mcu driven wheel bot with html5 web page control via wifi">
+	<meta name="description" lang="ru" content="колёсный робот с микроконтроллером esp8266 с управлением через веб странцу по вайфай">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="./script.js"></script>
+</head>
+<body>
+	<header>
+		<label for="menu">&#9776;</label>
+		<div class="title">
+			<p>Проект <span class="robot">robot.local</span></p>
+		</div>
+	</header>
+	<input class="toggle" id="menu" type="checkbox" />
+	<nav>
+		<a href="#Header">Наверх</a>
+		<a href="#About">О проекте</a>
+		<a href="#Instructions">Инструкция</a>
+		<a href="#Video">Видео</a>
+		<a href="#Hard">Оборудование</a>
+		<a href="#Soft">ПО</a>
+		<a href="#Credits">Инфо</a>
+		<a href="http://robot.local">Подключиться</a>
+	</nav>
+	<main>
+		<header id="Header">
+			<h1>
+				Проект <span class="robot">robot.local</span>
+			</h1>
+			<p>
+				Робот управляемый по WiFi
+			</p>
+		</header>
+		<section id="About">
+			<header>
+				<h2>О проекте</h2>
+			</header>
+			<p>
+				Проект, как обычно, создан just for fun.
+			</p>
+		</section>
+		<section id="Instructions">
+			<header>
+				<h2>Инструкция</h2>
+			</header>
+			<p>
+				Чтобы поуправлять роботом:
+			</p>
+			<ul>
+				<li>подключить esp8266</li>
+				<li>залить файло</li>
+				<li>залить скетч</li>
+				<li>подключиться к wifi с названием <url>robot.local</url></li>
+				<li>в любом <s>кроме ie</s> браузере перейти по адресу <a href="http://robot.local">robot.local</a></li>
+				<li>наслаждаться</li>
+			</ul>
+		</section>
+		<section id="Video">
+			<header>
+				<h2>Видео демонстрация работы</h2>
+			</header>
+			<div class="youtube">
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/ru-yXIdMTuc?rel=0" frameborder="0" allowfullscreen></iframe>
+			</div>
+		</section>
+		<section id="Hard">
+			<header>
+				<h2>Аппаратная часть</h2>
+			</header>
+			<ul>
+				<li>esp8266 mcu</li>
+				<li>wheel robot</li>
+				<li>...</li>
+			</ul>
+		</section>
+		<footer id="Credits">
+			esp8266, arduino, git, html5
+		</footer>
+	</main>
+	<footer>
+		<small>&copy; Роганов Сергей, Новосибирск, 2017</small>
+	</footer>
+</body>
+</html>
