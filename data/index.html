@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<!--*******************************************************
-    * robot                                               *
-    * wifi controlled wheel robot                         *
-    * esp8266 wifi with webserver, mdns, websocket server *
-    * © Roganov Sergey, 2017                              *
-    *******************************************************-->
+<!doctype html>
+<!-- © Sergey Roganov, 2017 -->
+<!-- © Сергей Роганов, 2017 -->
 <meta charset="utf8">
-<meta name="author" content="Roganov Sergey">
-<meta name="title" content="robot.local">
+<meta name="author" content="Sergey Roganov">
+<meta name="author" lang="ru" content="Сергей Роганов">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 <title>robot</title>
 <style>
@@ -153,41 +149,33 @@
 			if(Math.pow(joystick.deltaX(), 2)+Math.pow(joystick.deltaY(), 2)>Math.pow(30, 2)){
 				if(joystick.up()){
 					wsc = "w";
-					stc = "в†‘";
 					stc = "↑";
 				}
 				if(joystick.down()){
 					wsc = "x";
-					stc = "в†“";
 					stc = "↓";
 				}
 				if(joystick.left()){
 					if(joystick.up()){
 						wsc = "q";
-						stc = "в†–";
 						stc = "↖";
 					}else if(joystick.down()){
 						wsc = "z";
-						stc = "в†™";
 						stc = "↙";
 					}else{
 						wsc = "a";
-						stc = "в†ђ";
 						stc = "←";
 					}
 				}
 				if(joystick.right()){
 					if(joystick.up()){
 						wsc = "e";
-						stc = "в†—";
 						stc = "↗";
 					}else if(joystick.down()){
 						wsc = "c";
-						stc = "в†";
 						stc = "↘";
 					}else{
 						wsc = "d";
-						stc = "в†’";
 						stc = "→";
 					}
 				}
