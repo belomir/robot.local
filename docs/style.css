@@ -54,6 +54,7 @@ body > header {
 	flex-direction: row;
 	text-align: center;
 	font-weight: bold;
+	z-index: 1;
 }
 
 body > header > * {
@@ -153,6 +154,7 @@ body > footer {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	z-index: 1;
 }
 
 @media screen and (min-width: 30em) and (min-height: 18em) {
