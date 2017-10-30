@@ -1,3 +1,7 @@
+/* © Sergey Roganov, 2017 */
+/* © Сергей Роганов, 2017 */
+/* GNU/GPL v.3+ */
+
 (function() {
 	var dom;
 
