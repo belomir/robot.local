@@ -101,7 +101,6 @@ void setup() {
 		if(!handleFileRead(webServer.uri()))
 			webServer.sendHeader("Location", String("/"), true);
 			webServer.send(302, "text/plain", "");
-			//webServer.send(404, "text/plain", "404: Not Found");
 	});
 	webServer.begin();
 	Serial.println("done");
