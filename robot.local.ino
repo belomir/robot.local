@@ -155,6 +155,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 				analogWrite(LED_BLUE,   ((rgb >> 0) & 0xFF));
 			}
 			
+			if(payload[0]=='^'){
+				char * pend;
+				int left = strtol((const char *) &payload[1], &pend, 0);
+				int right = strtol(pend, &pend, 0);
+				move(left, right);
+			}
+			
 			if(webSocketConnected){
 				Serial.printf("len: %d - %s\n", length, payload);
 				if(length==1){
@@ -306,4 +313,12 @@ void c()
 	analogWrite(M1_S, MID);
 	analogWrite(M2_S, FULL);
 	Serial.println("c");
+}
+
+void move(int left, int right){
+	digitalWrite(M1_D, right>=0);
+	digitalWrite(M2_D, left>=0);
+	analogWrite(M1_S, abs(right));
+	analogWrite(M2_S, abs(left));
+	Serial.printf("left: \t%d, \tright: \t%d\n", left, right);
 }

@@ -179,27 +179,17 @@
 						stc = "→";
 					}
 				}
-				if(connected){
-					//webSocket.send("^"++" "+);
-				}
-				var fullWidth = parseInt(window.getComputedStyle(dom.main).width);
-				var fullHeight = parseInt(window.getComputedStyle(dom.main).height);
-				var radius = Math.min(fullWidth, fullHeight)/2;
-				var speed = Math.floor(Math.sqrt(Math.pow(joystick.deltaX()/2, 2) + Math.pow(joystick.deltaY()/2, 2)));
-				//var speed = -Math.round(joystick.deltaY()/fullHeight*2*1023);
-				console.log(Math.floor(speed/radius*1024));
-				//console.log(joystick.deltaX()/parseInt(window.getComputedStyle(dom.main).width));
 			}else{
 				if(stc!=="+"){
 					wsc = "s";
 					stc = "+";
 				}
 			}
-// 			if(connected && wsc!==lwsc){
-// 				webSocket.send(wsc);
-// 				lwsc = wsc;
-// 			}
-// 			console.log(wsc);
+			if(connected && wsc!==lwsc){
+				webSocket.send(wsc);
+				lwsc = wsc;
+			}
+			console.log(wsc);
 			dom.status.innerHTML = stc;
 			if(dom.debug && window.getComputedStyle(dom.debug).display!=='none'){
 				dom.debug.innerHTML	= '<b>Result:</b> '
