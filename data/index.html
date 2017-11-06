@@ -11,7 +11,7 @@
 		padding: 0;
 		margin: 0;
 	}
-	
+
 	main {
 		position: absolute;
 		top: 0;
@@ -26,7 +26,7 @@
 		-moz-user-select: none;
 		overflow: hidden;
 	}
-	
+
 	header {
 		padding: 0;
 		position: absolute;
@@ -40,12 +40,12 @@
 		align-items: center;
 		justify-content: space-evently;
 	}
-	
+
 	header > h1 {
 		transition: all 1s;
 		flex: 1;
 	}
-	
+
 	#status {
 		font-size: xx-large;
 		margin: 0;
@@ -61,7 +61,7 @@
 		align-items: center;
 		justify-content: center;
 	}
-	
+
 	#debug {
 		padding: 1em 2em;
 		position: absolute;
@@ -71,7 +71,7 @@
 		pointer-events: none;
 		display: none;
 	}
-	
+
 	footer {
 		padding: 0 1em;
 		font-size: small;
@@ -96,23 +96,23 @@
 	var connected = false;
 	var joystick;
 	var lwsc = "s";
-	
+
 	window.addEventListener("load", function(){
 		dom.main = document.querySelector("main");
 		dom.debug = document.querySelector("#debug");
 		dom.status = document.querySelector("#status");
 		dom.header = document.querySelector("header>h1");
 		dom.footer = document.querySelector("footer");
-		
+
 		webSocket = new WebSocket("ws://robot.local:81");
 		webSocket.binaryType = "arraybuffer";
-		
+
 		webSocket.addEventListener("open", function(event){
 			dom.status.style.background = "yellow";
 			console.log("ws open");
 			webSocket.send("Ready");
 		});
-		
+
 		webSocket.addEventListener("message", function(event){
 			console.log("ws message: " + typeof(event.data) + " " + event.data);
 			if(event.data==="Go!")dom.status.style.background = "lime";
@@ -120,7 +120,7 @@
 			dom.header.style.opacity = .3;
 			dom.footer.style.opacity = .3;
 		});
-		
+
 		webSocket.addEventListener("close", function(event){
 			dom.status.style.background = "red";
 			console.log('wsclose');
@@ -128,14 +128,14 @@
 			dom.header.style.opacity = 1;
 			dom.footer.style.opacity = 1;
 		});
-		
+
 		joystick = new VirtualJoystick({
 			container: dom.main,
 			mouseSupport: true,
 			strokeStyle: "black",
 			useCssTransform: true,
 		});
-		
+
 		joystick.mydown = function(event){};
 		joystick.myup = function(event){
 			lwsc = "s";
@@ -179,21 +179,59 @@
 						stc = "→";
 					}
 				}
-				if(connected){
-					//webSocket.send("^"++" "+);
-				}
 				var fullWidth = parseInt(window.getComputedStyle(dom.main).width);
 				var fullHeight = parseInt(window.getComputedStyle(dom.main).height);
+				// console.log("width: ", fullWidth);
+				// console.log("height: ", fullHeight);
 				var radius = Math.min(fullWidth, fullHeight)/2;
-				var speed = Math.floor(Math.sqrt(Math.pow(joystick.deltaX()/2, 2) + Math.pow(joystick.deltaY()/2, 2)));
+				// console.log("radius: ", radius);
+				var speed = Math.floor(Math.sqrt(Math.pow(joystick.deltaX(), 2) + Math.pow(joystick.deltaY(), 2))/radius*1024);
+				if(speed>1023)speed=1023;
+
+				var angle = 1-Math.abs(Math.atan(joystick.deltaX()/joystick.deltaY())/Math.PI*2);
+
+				// console.log(angle/Math.PI*2);
+
+				var direction = joystick.deltaY()<0?"forward":"backward";
+				var turn = joystick.deltaX()<0?"left":"right";
+				var left = speed;
+				var right = speed;
+				// if(turn=="left"){
+				// 	left *= 1-Math.abs(joystick.deltaX()/radius);
+				// }else{
+				// 	right *= 1-Math.abs(joystick.deltaX()/radius);
+				// }
+				if(direction=="forward"){
+					if(turn=="left"){
+						left *= angle;
+					}else{
+						right *= angle;
+					}
+				}else{
+					if(turn=="left"){
+						right *= angle;
+					}else{
+						left *= angle;
+					}
+				}
+				left = Math.floor(left);
+				right = Math.floor(right);
+				// console.log(left + "-" + right);
 				//var speed = -Math.round(joystick.deltaY()/fullHeight*2*1023);
-				console.log(Math.floor(speed/radius*1024));
+				// console.log(joystick.deltaY()<0?"forward":"backward");
+
+				// console.log(joystick.deltaX()<0?"left":"right");
+
+				// console.log(Math.floor(speed/radius*1024));
 				//console.log(joystick.deltaX()/parseInt(window.getComputedStyle(dom.main).width));
 			}else{
 				if(stc!=="+"){
 					wsc = "s";
 					stc = "+";
 				}
+			}
+			if(connected){
+				webSocket.send("^"+left+" "+right);
 			}
 // 			if(connected && wsc!==lwsc){
 // 				webSocket.send(wsc);
@@ -211,7 +249,7 @@
 					+ (joystick.down()  ? ' down'  : '');
 			}
 		};
-		
+
 		dom.main.addEventListener("mousedown", joystick.mydown);
 		dom.main.addEventListener("touchstart", joystick.mydown);
 		dom.main.addEventListener("mouseup", joystick.myup);
@@ -219,7 +257,7 @@
 		dom.main.addEventListener("mousemove", joystick.mymove);
 		dom.main.addEventListener("touchmove", joystick.mymove);
 	});
-	
+
 </script>
 <header>
 	<h1>robot.local</h1>
